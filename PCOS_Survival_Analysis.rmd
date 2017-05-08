@@ -1,0 +1,43 @@
+ ovary <- read.csv(file.choose())
+ #Read in data
+ 
+ medGene1 <- median(ovary$ENSG00000248672.4)
+ ovary$Gene1[ovary$ENSG00000248672.4>medGene1]=1
+ ovary$Gene1[ovary$Gene1!=1]=0
+ #Calculated median, created new variable for if gene expression was greater than median. 1 if yes, 0 if no
+ 
+ medGene2<-median(ovary$ENSG00000134531.8)
+ ovary$Gene2[ovary$ENSG00000134531.8>medGene2]=1
+ ovary$Gene2[ovary$Gene2!=1]=0
+ #Calculated median of second gene, created new variable for if gene expression was greater than med, 1 if yes, 0 if no
+ 
+ medGene3 <- median(ovary$ENSG00000260314.2)
+ ovary$Gene3[ovary$ENSG00000260314.2>medGene3]=1
+ ovary$Gene3[ovary$Gene3!=1]=0
+ #Calculated median of third gene, created new variable for if gene expression was greater than med, 1 if yes, 0 if no
+ 
+ ovary$Gene1[ovary$ENSG00000248672.4<=medGene1]=0
+ ovary$Gene2[ovary$ENSG00000134531.8<=medGene2]=0
+ ovary$Gene3[ovary$ENSG00000260314.2<=medGene3]=0
+ #Realized it did not recognize != in assigning values for median when defining whether gene expression was above or below median
+ 
+ 
+ ovary$PCOS <- ifelse(((ovary$Gene1 -- 1) & (ovary$Gene2 == 1) & (ovary$Gene3 == 1)), 1, 0)
+ #Created dummy variable for PCOS, 1 if all three genes above median. 0 else
+ 
+ ovary$PCOS[ovary$Gene1==0]=0
+ #Had to correct a couple values
+ 
+ library(survival)
+ #loaded library
+ 
+ ovary$years = floor(ovary$Time/365)
+ #calculated time since diagnosis in years
+ 
+ survYearsFit <-survfit(Surv(years, Death)~1, data = ovary)
+ plot(survYearsFit, xlab = "Years", ylab = "Likelihood of Being Alive", main = "Ovarian Cancer Odds", lwd = 3)
+ #Generated line to fit survival model with all data together, generated plot
+ 
+ survPCOS <- survfit(Surv(years, Death)~PCOS, data = ovary)
+ lines(survPCOS, lwd = 3, col = c("red", "blue"))
+ #Created survival model separating data into PCOS or not, put lines over original survival plot
