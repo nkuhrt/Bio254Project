@@ -1,0 +1,26 @@
+survival_data <- read.csv(file.choose())  #reads in file
+
+survival_data$years = floor(survival_data$Time/365)   #Converts time in days to years
+
+library(survival)   #loads survival library
+
+survYears <- with(survival_data, Surv(years, Death == 1))   #Creates survival model
+
+survYearsFit <- survfit(Surv(years, Death)~1, data = survival_data)   #Creates fit line to fit survival model
+
+plot(survYearsFit, xlab = "Years", ylab = "Likelihood of Being Alive", main = "Ovarian Cancer Odds")
+#plots line fit model
+
+survial_data$a_Bracket[survival_data$Age.at.diag<50]=0
+survial_data$a_Bracket[survival_data$Age.at.diag>49]=1
+survial_data$a_Bracket[survival_data$Age.at.diag>70]=2
+#Creates new categorical value, places each patient into age bracket
+
+survYearsAgeFit <- survfit(Surv(years, Death)~a_Bracket, data = survival_data
+#Creates survival model separating patients by age bracket
+
+plot(survYearsFit, xlab = "Years", ylab = "Likelihood of Being Alive", main = "Ovarian Cancer Odds", lwd = 3)
+#Plotted original survival curve, slightly thicker line
+
+lines(survYearsAgeFit, lwd = 3, col = c("red","green","blue"))
+#Puts lines of survival model by age over survival model for all observations
